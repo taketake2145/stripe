@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Sample</title>
+    <script src="https://js.stripe.com/v3/"></script>
+  </head>
+  <body>
+    <section>
+      <form action="/create-checkout-session.php" method="POST">
+        <input type="hidden" name="lookup_key" value="subscription500" />
+        <button id="checkout-and-portal-button" type="submit">Checkout</button>
+      </form>
+    </section>
+  </body>
+</html>
