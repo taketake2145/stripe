@@ -1,5 +1,4 @@
 <?php
-
 require_once '../vendor/autoload.php';
 require_once '../secrets.php';
 
@@ -7,65 +6,80 @@ require_once '../secrets.php';
 
 header('Content-Type: application/json');
 
+$login_id = 5;
+
 $original_lookup_key = $_POST['lookup_key'];
 
 switch ($original_lookup_key) {
   case 'subscription500':
     $price_id = 'price_1N22gYHjUfxVs1AipFPqIGqT';
+    $mode = 'subscription';
     break;
+  case '10days':
+    $price_id = 'price_1N2N9kHjUfxVs1AiY2fliSjh';
+    $mode = 'payment';
+    break;    
 
   default:
 
-    // TODO エラー画面に誘導する
+    echo json_encode([
+      'status' => 'error',
+      'text' => 'no item',
+    ]);
     die();
 };
 
-
 try {
+
+  // 商品のプライス情報を取得する
   $price = \Stripe\Price::retrieve([
     'id' => $price_id
   ]);
 
+  // チェックアウトセッションを作成する
   $checkout_session = \Stripe\Checkout\Session::create([
     'line_items' => [[
       'price' => $price,
       'quantity' => 1,
     ]],
-    'mode' => 'subscription',
+    'mode' => $mode,
     'success_url' => $YOUR_DOMAIN . '/success.php?session_id={CHECKOUT_SESSION_ID}',
     'cancel_url' => $YOUR_DOMAIN . '/',
-  ]);
+  ]);  
 
   // DBに新規レコードを追加する
-  // Connect to the database
   $conn = new mysqli($servername, $username, $password, $dbname);
 
-  // Check connection
   if ($conn->connect_error) {
-      die("Connection failed: " . $conn->connect_error);
+    echo json_encode([
+      'status' => 'error',
+      'text' => 'Connection failed',
+    ]);
+    die();
   }
-  
-  // Prepare the statement
-  $stmt = $conn->prepare("INSERT INTO checkout_sessions (cp_status, user_id, session_id) VALUES (?, ?, ?)");
-  
-  // Bind the parameters
+
+  $stmt = $conn->prepare("INSERT INTO checkout_sessions (cp_status, user_id, session_id) VALUES (?, ?, ?)");  
   $stmt->bind_param("sis", $cp_status, $user_id, $session_id);
   
-  // Define the values to insert
   $cp_status = "PENDING";
-  $user_id = 5;
+  $user_id = $login_id;
   $session_id = $checkout_session->id;
   
-  // Execute the statement
-  $stmt->execute();
+  $stmt->execute();      
+  $stmt->close();      
+
+  echo json_encode([
+    'status' => 'success',
+    'text' => $checkout_session->url,
+  ]);  
   
-  // Close the statement and connection
-  $stmt->close();
   $conn->close();
 
-  header("HTTP/1.1 303 See Other");
-  header("Location: " . $checkout_session->url);
 } catch (Error $e) {
-  http_response_code(500);
-  echo json_encode(['error' => $e->getMessage()]);
+  // $e->getMessage()
+
+  echo json_encode([
+    'status' => 'error',
+    'text' => 'checkout',
+  ]);
 }

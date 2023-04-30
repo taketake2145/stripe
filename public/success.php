@@ -4,9 +4,12 @@ require_once '../secrets.php';
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
+$session_id = $_GET['session_id'];
+$login_id = 5;
+
 // セッションを取得して、
 $stripe_status = \Stripe\Checkout\Session::retrieve([
-  'id' => $_GET['session_id']
+  'id' => $session_id
 ]);
 
 $payment_status = $stripe_status['payment_status'];
@@ -33,10 +36,10 @@ $stmt = $conn->prepare("UPDATE checkout_sessions SET cp_status=?, customer_id=?,
 $stmt->bind_param("sssis", $cp_status, $customer_id, $subscription_id, $user_id, $session_id);
 
 $cp_status = "PAID";
-$customer_id = $stripe_status['customer'];
-$subscription_id = $stripe_status['subscription'];
-$user_id = 5;
-$session_id = $_GET['session_id'];
+
+$customer_id = $stripe_status['customer'] ?? NULL;
+$subscription_id = $stripe_status['subscription'] ?? NULL;
+$user_id = $login_id;
 
 $stmt->execute();
 
@@ -58,7 +61,8 @@ $stmt->close();
   <script src="client.js" defer></script>
 </head>
 <body>
-  <form action="/deleted.php" method="POST">
+  <a href="/">チェックアウト</a>
+  <form action="/canceled.php" method="POST">
     <button type="submit">解約する</button>
   </form>
 </body>

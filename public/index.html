@@ -9,8 +9,14 @@
     <section>
       <form action="/create-checkout-session.php" method="POST">
         <input type="hidden" name="lookup_key" value="subscription500" />
-        <button id="checkout-and-portal-button" type="submit">Checkout</button>
+        <button id="checkout-and-portal-button" type="submit">サブスク Checkout</button>
       </form>
+
+      <form action="/create-checkout-session.php" method="POST">
+        <input type="hidden" name="lookup_key" value="10days" />
+        <button id="checkout-and-portal-button" type="submit">都度 Checkout</button>
+      </form>      
+      
     </section>
   </body>
 </html>
