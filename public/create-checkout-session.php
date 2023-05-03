@@ -1,31 +1,25 @@
 <?php
-require_once '../vendor/autoload.php';
-require_once '../secrets.php';
+require_once __DIR__ . '/../../../stripe/secrets.php';
+require_once __DIR__ . '/../../../stripe/vendor/autoload.php';
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
-header('Content-Type: application/json');
-
-$login_id = 5;
-
+$login_id = $_POST['login_id'];
 $original_lookup_key = $_POST['lookup_key'];
 
+// 内部の商品コードからstripeの商品コードに変換する
 switch ($original_lookup_key) {
   case 'subscription500':
-    $price_id = 'price_1N22gYHjUfxVs1AipFPqIGqT';
+    $price_id = ($IS_SERVICE_MODE === 'master')? 'price_1MuTduHjUfxVs1AiJBWpJJLB': 'price_1N22gYHjUfxVs1AipFPqIGqT';
     $mode = 'subscription';
     break;
   case '10days':
-    $price_id = 'price_1N2N9kHjUfxVs1AiY2fliSjh';
+    $price_id = ($IS_SERVICE_MODE === 'master')? 'price_1N35UaHjUfxVs1AikrDc94vC': 'price_1N2N9kHjUfxVs1AiY2fliSjh';
     $mode = 'payment';
     break;    
 
   default:
-
-    echo json_encode([
-      'status' => 'error',
-      'text' => 'no item',
-    ]);
+    header("Location: " . $ERROR_URL . "?error=no-item");
     die();
 };
 
@@ -43,18 +37,15 @@ try {
       'quantity' => 1,
     ]],
     'mode' => $mode,
-    'success_url' => $YOUR_DOMAIN . '/success.php?session_id={CHECKOUT_SESSION_ID}',
-    'cancel_url' => $YOUR_DOMAIN . '/',
+    'success_url' => $SUCCESS_URL . '?session_id={CHECKOUT_SESSION_ID}',
+    'cancel_url' => $CANCEL_URL,
   ]);  
 
   // DBに新規レコードを追加する
   $conn = new mysqli($servername, $username, $password, $dbname);
 
   if ($conn->connect_error) {
-    echo json_encode([
-      'status' => 'error',
-      'text' => 'Connection failed',
-    ]);
+    header("Location: " . $ERROR_URL . "?error=checkout-id");
     die();
   }
 
@@ -66,20 +57,14 @@ try {
   $session_id = $checkout_session->id;
   
   $stmt->execute();      
-  $stmt->close();      
-
-  echo json_encode([
-    'status' => 'success',
-    'text' => $checkout_session->url,
-  ]);  
+  $stmt->close();
   
   $conn->close();
 
+  header("HTTP/1.1 303 See Other");
+  header("Location: " . $checkout_session->url);
 } catch (Error $e) {
-  // $e->getMessage()
 
-  echo json_encode([
-    'status' => 'error',
-    'text' => 'checkout',
-  ]);
+  // $e->getMessage()
+  header("Location: " . $ERROR_URL . "?error=create-checkout");
 }

@@ -8,13 +8,21 @@
   <body>
     <section>
       <form action="/create-checkout-session.php" method="POST">
-        <input type="hidden" name="lookup_key" value="subscription500" />
+        USER_ID<br>
+        <input type="text" name="login_id" value="5" inputmode="numeric">
+        <input type="hidden" name="lookup_key" value="subscription500">
         <button id="checkout-and-portal-button" type="submit">サブスク Checkout</button>
       </form>
 
       <form action="/create-checkout-session.php" method="POST">
-        <input type="hidden" name="lookup_key" value="10days" />
+        <input type="text" name="login_id" value="5" inputmode="numeric">
+        <input type="hidden" name="lookup_key" value="10days">
         <button id="checkout-and-portal-button" type="submit">都度 Checkout</button>
+      </form>   
+      
+      <form action="/canceled.php" method="POST">
+        <input type="text" name="login_id" value="5" inputmode="numeric">
+        <button type="submit">解約する</button>
       </form>      
       
     </section>

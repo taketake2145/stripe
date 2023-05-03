@@ -1,6 +1,6 @@
 <?php
-require_once '../vendor/autoload.php';
-require_once '../secrets.php';
+require_once __DIR__ . '/../../../stripe/secrets.php';
+require_once __DIR__ . '/../../../stripe/vendor/autoload.php';
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 $endpoint_secret = $stripeWebhookKey;

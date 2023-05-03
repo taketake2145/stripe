@@ -1,6 +1,6 @@
 <?php
-require_once '../vendor/autoload.php';
-require_once '../secrets.php';
+require_once  __DIR__ . '/../../../stripe/secrets.php';
+require_once  __DIR__ . '/../../../stripe/vendor/autoload.php';
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
@@ -58,12 +58,8 @@ $stmt->close();
 <html>
 <head>
   <title>Thanks for your order!</title>
-  <script src="client.js" defer></script>
 </head>
 <body>
   <a href="/">チェックアウト</a>
-  <form action="/canceled.php" method="POST">
-    <button type="submit">解約する</button>
-  </form>
 </body>
 </html>
