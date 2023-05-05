@@ -1,6 +1,8 @@
 <?php
-require_once __DIR__ . '/../../../stripe/secrets.php';
-require_once __DIR__ . '/../../../stripe/vendor/autoload.php';
+$STRIPE_PATH = ($IS_SERVICE_MODE === 'master')? __DIR__ . '/../../../../stripe': __DIR__ . '/../../../../stripe';
+
+require_once $STRIPE_PATH . '/secrets.php';
+require_once $STRIPE_PATH . '/vendor/autoload.php';
 
 \Stripe\Stripe::setApiKey($stripeSecretKey);
 
