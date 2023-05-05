@@ -1,5 +1,5 @@
 <?php
-$STRIPE_PATH = ($IS_SERVICE_MODE === 'master')? __DIR__ . '/../../../../stripe': __DIR__ . '/../../../../stripe';
+$STRIPE_PATH = __DIR__ . '/../../../stripe';
 
 require_once  $STRIPE_PATH . '/secrets.php';
 require_once  $STRIPE_PATH . '/vendor/autoload.php';

@@ -2,7 +2,7 @@
 $login_id = $_POST['login_id'];
 
 
-$STRIPE_PATH = ($IS_SERVICE_MODE === 'master')? __DIR__ . '/../../../../stripe': __DIR__ . '/../../../../stripe';
+$STRIPE_PATH = __DIR__ . '/../../../stripe';
 
 require_once $STRIPE_PATH . '/secrets.php';
 require_once $STRIPE_PATH . '/vendor/autoload.php';
@@ -49,13 +49,13 @@ try {
   // 内部の商品コードからstripeの商品コードに変換する
   switch ($original_lookup_key) {
     case 'subscription500':
-      $price_id = ($IS_SERVICE_MODE === 'master')? 'price_1MuTduHjUfxVs1AiJBWpJJLB': 'price_1N22gYHjUfxVs1AipFPqIGqT';
+      $price_id = ($SERVICE_MODE === 'master')? 'price_1MuTduHjUfxVs1AiJBWpJJLB': 'price_1N22gYHjUfxVs1AipFPqIGqT';
       $mode = 'subscription';
       break;
     case '10days':
-      $price_id = ($IS_SERVICE_MODE === 'master')? 'price_1N35UaHjUfxVs1AikrDc94vC': 'price_1N2N9kHjUfxVs1AiY2fliSjh';
+      $price_id = ($SERVICE_MODE === 'master')? 'price_1N35UaHjUfxVs1AikrDc94vC': 'price_1N2N9kHjUfxVs1AiY2fliSjh';
       $mode = 'payment';
-      break;    
+      break;
 
     default:
       header("Location: " . $ERROR_URL . "?error=no-item");
@@ -80,14 +80,14 @@ try {
 
 
   // DBに新規レコードを追加する
-  $stmt = $conn->prepare("INSERT INTO checkout_sessions (cp_status, user_id, session_id) VALUES (?, ?, ?)");  
+  $stmt = $conn->prepare("INSERT INTO checkout_sessions (cp_status, user_id, session_id) VALUES (?, ?, ?)");
   $stmt->bind_param("sis", $cp_status, $user_id, $session_id);
-  
+
   $cp_status = "PENDING";
   $user_id = $login_id;
   $session_id = $checkout_session->id;
-  
-  $stmt->execute();      
+
+  $stmt->execute();
   $stmt->close();
 
   // DB接続を終了する

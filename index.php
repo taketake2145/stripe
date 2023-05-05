@@ -1,7 +1,7 @@
 <?php
 // using prepared statement?
 
-$STRIPE_PATH = ($IS_SERVICE_MODE === 'master')? __DIR__ . '/../../../../stripe': __DIR__ . '/../../../../stripe';
+$STRIPE_PATH = __DIR__ . '/../../../stripe';
 
 require_once  $STRIPE_PATH . '/secrets.php';
 require_once  $STRIPE_PATH . '/vendor/autoload.php';
@@ -48,19 +48,21 @@ if ($count > 0) {
   }
 
   while ($row = $result->fetch_assoc()) {
-    $cp_status = ($row['subscription_id'])? '継続': '都度';
+    $cp_status_label = ($row['subscription_id'])? 'subscription': 'onetime';
     $cancel_at_period_end = $row['cancel_at_period_end'];    
     $period_start = $row['period_start'];
     $period_end = $row['period_end'];
   }
 } else {
   
-  $cp_status = 'PENDING';
-  $cancel_at_period_end = true;
+  $cp_status_label = 'PENDING';
+  $cancel_at_period_end = 1;
   $is_subscription_id = false;
   $period_start = 0;
   $period_end = 0;
 }
+
+
 ?>
 <!DOCTYPE html>
 <html>
@@ -79,7 +81,7 @@ if ($count > 0) {
         <th>終了日</th>
       <tr>
       <tr>
-        <td><?php echo $cp_status; ?></td>
+        <td><?php echo $cp_status_label; ?></td>
         <td><?php echo ($cancel_at_period_end)? 'なし': date('Y-m-d', $period_end); ?></td>
         <td><?php echo ($period_start > 0)? date('Y-m-d', $period_start): '-'; ?></td>
         <td><?php echo ($period_end > 0)? date('Y-m-d', $period_end): '-'; ?></td>
